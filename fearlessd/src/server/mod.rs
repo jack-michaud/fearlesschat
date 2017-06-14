@@ -3,11 +3,12 @@ use std::collections::LinkedList;
 use std::string::String;
 use std::io::{Read, Write};
 
-pub mod tasks;
+pub mod jobs;
+pub mod task;
 
 pub struct Server {
 	listener: TcpListener,
-	queue: LinkedList<tasks::Job>,
+	queue: LinkedList<jobs::Job>,
 }
 
 impl Server {
@@ -31,13 +32,16 @@ impl Server {
 		}
 	}
 
-	pub fn listen_for_tasks(&mut self) {
+	pub fn listen_for_jobs(&mut self) {
 		for stream in self.listener.incoming() {
 			match stream {
 				Ok(stream) => {
 					println!("Got connection");
 					let response: String = handle(stream);
-					self.queue.push_back(tasks::Job { task: tasks::Task { name: String::from(response) }});
+					self.queue.push_back(jobs::Job { 
+						task: MESSAGE,
+						arg: Arg { val1: 1, val2: 2 },
+					});
 
 					println!("{:?}", self.queue.len());
 				} 
@@ -46,16 +50,12 @@ impl Server {
 		}
 	}
 
-	fn handle_job(&mut self, stream: TcpStream) -> tasks::Job {
-		let response: String = handle(stream);
-
-		println!("{}", response);
-
-		tasks::Job { task: tasks::Task { name: String::from("Message") }}
+	pub fn get_next_job(&mut self) -> Option<jobs::Job> {
+		self.queue.pop_front()
 	}
 
-	pub fn add_job(&mut self, task: tasks::Job) {
-		self.queue.push_back(task);
+	pub fn has_job(&mut self) -> bool {
+		self.queue.is_empty()
 	}
 
 

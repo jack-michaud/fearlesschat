@@ -2,13 +2,13 @@ use std::string::String;
 use std::collections::LinkedList;
 use std::fmt;
 
+use server::task::{Task, Arg};
+
 pub struct Job {
-	pub task: Task
+	pub task: Task,
+	pub arg: Arg
 }
 
-pub struct Task {
-	pub name: String
-}
 
 impl fmt::Display for Job {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
